@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WorkingWithEFCore": {
+      "commandName": "Project",
+      "workingDirectory": "F:\\Practice\\DotNetCore\\MarkJPricePractice\\WorkingWithEFCore"
+    }
+  }
+}

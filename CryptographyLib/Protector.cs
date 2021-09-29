@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Xml.Linq;
 
@@ -55,7 +56,7 @@ namespace Packt.Shared
         }
 
         private static Dictionary<string, User> Users = new Dictionary<string, User>();
-        public static User Register(string username, string password)
+        public static User Register(string username, string password, string[] roles = null)
         {
             var rng = RandomNumberGenerator.Create();
             var saltBytes = new byte[16];
@@ -68,7 +69,8 @@ namespace Packt.Shared
             {
                 Name = username,
                 Salt = saltText,
-                SaltedHashedPassword = saltedHashedPassword
+                SaltedHashedPassword = saltedHashedPassword,
+                Roles = roles
             };
 
             Users.Add(user.Name, user);
@@ -164,6 +166,16 @@ namespace Packt.Shared
             rsa.FromXMlStringExt(PublicKey);
 
             return rsa.VerifyHash(hashedData, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        }
+
+        public static void LogIn(string username, string password)
+        {
+            if (CheckPassword(username, password))
+            {
+                var identity = new GenericIdentity(username, "PackAuth");
+                var principal = new GenericPrincipal(identity, Users[username].Roles);
+                System.Threading.Thread.CurrentPrincipal = principal;
+            }
         }
     }
 }
